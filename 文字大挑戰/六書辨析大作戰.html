@@ -58,6 +58,7 @@
       flex-direction: column;
       border-radius: 4px;
       overflow: hidden;
+      will-change: transform;
     }
 
     /* Scroll Roller decorations at top and bottom */
@@ -1220,7 +1221,7 @@
     };
 
     // --- 遊戲核心變數與狀態管理 ---
-    let db = [];
+    let db = [...FALLBACK_DATA];
     let gameState = {
       score: 0,
       lives: 5,
@@ -1314,12 +1315,15 @@
         const response = await fetch(CSV_URL);
         if (!response.ok) throw new Error('無法載入 Google 試算表');
         const text = await response.text();
-        db = parseCSV(text);
-        if (db.length === 0) throw new Error('解析 CSV 後資料為空');
-        console.log('自 Google 試算表載入題庫成功，共', db.length, '筆數據。');
+        const parsed = parseCSV(text);
+        if (parsed.length > 0) {
+          db = parsed;
+          console.log('自 Google 試算表載入題庫成功，共', db.length, '筆數據。');
+        } else {
+          throw new Error('解析 CSV 後資料為空');
+        }
       } catch (e) {
-        console.warn('Google 試算表題庫載入失敗或受 CORS 限制，改用內建題庫備用方案。', e);
-        db = [...FALLBACK_DATA];
+        console.warn('Google 試算表題庫載入失敗或受 CORS 限制，已使用內建預設題庫。', e);
       }
     }
 
@@ -1572,11 +1576,6 @@
 
         plaque.innerHTML = `<span class="plaque-content">${choice.word}</span>`;
 
-        // Add event listener for click or touch
-        plaque.addEventListener('pointerdown', (e) => onTileClicked(e, tileObj));
-
-        playArea.appendChild(plaque);
-
         const tileObj = {
           element: plaque,
           y: -plaqueHeight,
@@ -1589,6 +1588,10 @@
           height: plaqueHeight
         };
 
+        // Add event listener for click or touch
+        plaque.addEventListener('pointerdown', (e) => onTileClicked(e, tileObj));
+
+        playArea.appendChild(plaque);
         gameState.currentTiles.push(tileObj);
       });
     }
@@ -1630,8 +1633,9 @@
       if (!gameState.isActive || gameState.isPaused) return;
 
       const rect = playArea.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
+      const scale = (rect.width / playArea.clientWidth) || 1;
+      const clickX = (e.clientX - rect.left) / scale;
+      const clickY = (e.clientY - rect.top) / scale;
 
       if (tile.isTarget) {
         // Correct Hit!
@@ -1784,11 +1788,36 @@
       }
     });
 
+    function adjustScale() {
+      const container = document.querySelector('.scroll-container');
+      if (!container) return;
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      
+      const targetWidth = 530; // 500px + some horizontal buffer
+      const targetHeight = 770; // 750px + some vertical buffer
+      
+      const scaleX = windowWidth / targetWidth;
+      const scaleY = windowHeight / targetHeight;
+      const scale = Math.min(scaleX, scaleY);
+      
+      if (scale < 1) {
+        container.style.transform = `scale(${scale})`;
+        container.style.transformOrigin = 'center center';
+      } else {
+        container.style.transform = '';
+      }
+    }
+
     // Initialize the CSV loading and DB fallback on load
     window.addEventListener('DOMContentLoaded', () => {
       initDatabase();
       initGame();
+      adjustScale();
     });
+
+    window.addEventListener('resize', adjustScale);
+    window.addEventListener('load', adjustScale);
   </script>
 </body>
 
