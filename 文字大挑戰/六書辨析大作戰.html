@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>六書辨析大作戰 — 傳統水墨風教學遊戲</title>
+  <meta name="description" content="學習漢字造字法！六書辨析大作戰，結合傳統淡雅水墨美學，讓玩家在趣味中掌握象形、指事、會意與形聲。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --color-cream: #f4efe6;
+      --color-parchment: #fcfaf2;
+      --color-ink: #1a1a1a;
+      --color-red: #a82e2e;
+      --color-gold: #c29d5b;
+      --color-wood: #8a6d4d;
+      --color-wood-dark: #5c4530;
+      --font-body: 'Noto Serif TC', serif;
+      --font-calligraphy: 'Noto Serif TC', serif;
+      --font-title: 'Microsoft JhengHei', 'Noto Serif TC', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: #e5dec9;
+      background-image: url('ink_wash_bg.png'), radial-gradient(circle, rgba(253, 251, 247, 0.4) 0%, rgba(229, 222, 201, 0.9) 100%);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--color-ink);
+    }
+
+    /* Traditional Chinese Scroll Container */
+    .scroll-container {
+      position: relative;
+      width: 500px;
+      height: 750px;
+      background: var(--color-parchment);
+      border-left: 10px solid var(--color-wood);
+      border-right: 10px solid var(--color-wood);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), inset 0 0 60px rgba(138, 109, 77, 0.12);
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Scroll Roller decorations at top and bottom */
+    .scroll-roller-top,
+    .scroll-roller-bottom {
+      height: 14px;
+      background: linear-gradient(to right, #403020, var(--color-wood-dark), #403020);
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .scroll-roller-top::before,
+    .scroll-roller-top::after,
+    .scroll-roller-bottom::before,
+    .scroll-roller-bottom::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: var(--color-wood);
+      border: 2px solid #332211;
+      border-radius: 50%;
+      top: -2px;
+    }
+
+    .scroll-roller-top::before,
+    .scroll-roller-bottom::before {
+      left: -14px;
+    }
+
+    .scroll-roller-top::after,
+    .scroll-roller-bottom::after {
+      right: -14px;
+    }
+
+    /* Custom Scrollbar for Info Panels */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(138, 109, 77, 0.05);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-wood);
+      border-radius: 3px;
+    }
+
+    /* Top Header Stats */
+    .game-header {
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed rgba(138, 109, 77, 0.3);
+      background: rgba(252, 250, 242, 0.85);
+      z-index: 5;
+    }
+
+    /* Calligraphy Red Stamp for Score */
+    .stamp-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .red-stamp {
+      font-family: var(--font-calligraphy);
+      color: var(--color-red);
+      border: 2.5px solid var(--color-red);
+      padding: 2px 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: rgba(255, 245, 238, 0.4);
+      border-radius: 2px;
+      box-shadow: inset 0 0 4px rgba(168, 46, 46, 0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.1;
+      transform: rotate(-2deg);
+      transition: transform 0.2s ease;
+    }
+
+    .red-stamp.bounce {
+      transform: scale(1.15) rotate(4deg);
+    }
+
+    .stamp-title {
+      font-size: 0.75rem;
+      border-bottom: 1px solid var(--color-red);
+      width: 100%;
+      text-align: center;
+      padding-bottom: 2px;
+      margin-bottom: 2px;
+    }
+
+    .stamp-value {
+      font-size: 1.1rem;
+    }
+
+    .wave-indicator {
+      font-family: var(--font-calligraphy);
+      font-size: 1.25rem;
+      color: #4a3e2c;
+    }
+
+    /* Ink droplet lives */
+    .lives-container {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .ink-droplet {
+      width: 16px;
+      height: 20px;
+      fill: var(--color-ink);
+      opacity: 0.85;
+      transition: all 0.5s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+    }
+
+    .ink-droplet.lost {
+      opacity: 0.15;
+      fill: #bbb;
+      transform: translateY(30px) scale(0.6);
+    }
+
+    /* Target Category Scroll Ribbon */
+    .target-banner {
+      margin: 15px 25px 10px;
+      padding: 10px 15px;
+      background: linear-gradient(to right, rgba(168, 46, 46, 0.05), rgba(168, 46, 46, 0.12) 50%, rgba(168, 46, 46, 0.05));
+      border-top: 1.5px solid var(--color-red);
+      border-bottom: 1.5px solid var(--color-red);
+      text-align: center;
+      position: relative;
+      z-index: 5;
+    }
+
+    .target-banner::before,
+    .target-banner::after {
+      content: '❖';
+      color: var(--color-red);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+    }
+
+    .target-banner::before {
+      left: 15px;
+    }
+
+    .target-banner::after {
+      right: 15px;
+    }
+
+    .target-label {
+      font-size: 0.85rem;
+      color: #7a6a53;
+      letter-spacing: 2px;
+      margin-bottom: 2px;
+    }
+
+    .target-word {
+      font-family: var(--font-calligraphy);
+      font-size: 1.8rem;
+      color: var(--color-red);
+      font-weight: bold;
+      letter-spacing: 4px;
+    }
+
+    /* Main Playfield Area */
+    .playfield {
+      flex: 1;
+      position: relative;
+      background: radial-gradient(circle, rgba(253, 251, 247, 0.2) 0%, rgba(244, 239, 230, 0.45) 100%);
+      margin: 0 25px;
+      border: 1px solid rgba(138, 109, 77, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+      /* Watercolor vertical lines representing lanes */
+      background-image:
+        linear-gradient(to right, transparent 24.8%, rgba(138, 109, 77, 0.08) 25%, rgba(138, 109, 77, 0.08) 25.2%, transparent 25.4%),
+        linear-gradient(to right, transparent 49.8%, rgba(138, 109, 77, 0.08) 50%, rgba(138, 109, 77, 0.08) 50.2%, transparent 50.4%),
+        linear-gradient(to right, transparent 74.8%, rgba(138, 109, 77, 0.08) 75%, rgba(138, 109, 77, 0.08) 75.2%, transparent 75.4%);
+    }
+
+    /* Falling Wooden Plaques (木簡) */
+    .plaque {
+      position: absolute;
+      width: 76px;
+      height: 105px;
+      background: linear-gradient(135deg, #f7efe2 0%, #eadaa2 100%);
+      border: 2px solid var(--color-wood);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), inset 0 0 12px rgba(255, 255, 255, 0.6);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform: translateX(-50%);
+      transition: box-shadow 0.15s ease, transform 0.1s ease;
+      touch-action: none;
+    }
+
+    .plaque::before {
+      /* String hanger loop at the top */
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      border: 1.5px solid var(--color-red);
+      border-radius: 50%;
+    }
+
+    .plaque::after {
+      /* Small hanging tassel or red dot */
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 6px;
+      background: var(--color-red);
+    }
+
+    .plaque:hover {
+      box-shadow: 0 8px 16px rgba(138, 109, 77, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+
+    .plaque-content {
+      font-family: var(--font-calligraphy);
+      font-size: 2.4rem;
+      font-weight: bold;
+      color: var(--color-ink);
+      text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.9);
+      user-select: none;
+    }
+
+    /* Wrong plaque shake animation */
+    .plaque.shake {
+      animation: shake-plaque 0.4s ease;
+    }
+
+    @keyframes shake-plaque {
+
+      0%,
+      100% {
+        transform: translateX(-50%) rotate(0deg);
+      }
+
+      20%,
+      60% {
+        transform: translateX(-50%) translateY(2px) rotate(-6deg);
+      }
+
+      40%,
+      80% {
+        transform: translateX(-50%) translateY(-2px) rotate(6deg);
+      }
+    }
+
+    /* Bottom Control Bar */
+    .game-footer {
+      padding: 12px 25px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      background: rgba(252, 250, 242, 0.85);
+      z-index: 5;
+      border-top: 1px dashed rgba(138, 109, 77, 0.2);
+    }
+
+    /* Ancient Style Buttons */
+    .btn-ancient {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #70543e 0%, #4a3424 100%);
+      border: 1px solid #332211;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .btn-ancient:hover {
+      background: linear-gradient(135deg, #8a6d4d 0%, #5c4530 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-ancient:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #e8dfcc 0%, #d4c8b2 100%);
+      color: #4a3424;
+      border: 1px solid #aaa088;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #ebdcb9 0%, #d2c19b 100%);
+      color: #3b281b;
+    }
+
+    /* Audio Toggle Icon Button */
+    .btn-mute {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1.5px solid var(--color-wood);
+      background: var(--color-parchment);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .btn-mute:hover {
+      background: #ebdcb9;
+      transform: scale(1.05);
+    }
+
+    .btn-mute svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--color-wood-dark);
+    }
+
+    /* Overlay Screens (Start, Pause, Game Over, Guide) */
+    .screen-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(26, 26, 26, 0.65);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      padding: 30px;
+    }
+
+    .screen-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Elegant Hanging Scroll design for overlays */
+    .scroll-content {
+      width: 100%;
+      max-height: 90%;
+      background: var(--color-parchment);
+      border: 14px double var(--color-wood);
+      border-radius: 4px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(138, 109, 77, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 25px;
+      position: relative;
+      animation: unfold-scroll 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      overflow-y: auto;
+    }
+
+    @keyframes unfold-scroll {
+      0% {
+        transform: scaleY(0.1);
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+
+    /* Calligraphy Title */
+    .screen-title {
+      font-family: var(--font-calligraphy);
+      font-size: 2.5rem;
+      color: var(--color-red);
+      margin-bottom: 20px;
+      text-align: center;
+      letter-spacing: 4px;
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    #screen-start .screen-title,
+    #screen-gameover .screen-title {
+      font-family: var(--font-title);
+      font-size: 2.8rem;
+      white-space: nowrap;
+    }
+
+    .screen-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      width: 80%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--color-red) 50%, transparent);
+    }
+
+    .screen-text {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #4a3e2c;
+      text-align: justify;
+      margin-bottom: 25px;
+      width: 100%;
+    }
+
+    /* Start Screen Specific */
+    .rules-card {
+      background: rgba(138, 109, 77, 0.05);
+      border: 1px dashed var(--color-wood);
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 25px;
+      font-size: 0.9rem;
+    }
+
+    .rules-card ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .rules-card li {
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .rules-card li::before {
+      content: '墨';
+      color: var(--color-red);
+      font-family: var(--font-calligraphy);
+      position: absolute;
+      left: 0;
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 220px;
+    }
+
+    .menu-buttons button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.05rem;
+    }
+
+    /* Guide Overlay Specific */
+    .guide-book {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .guide-section {
+      border-bottom: 1px dashed rgba(138, 109, 77, 0.3);
+      padding-bottom: 15px;
+    }
+
+    .guide-section:last-child {
+      border-bottom: none;
+    }
+
+    .guide-title {
+      font-family: var(--font-calligraphy);
+      font-size: 1.4rem;
+      color: var(--color-red);
+      margin-bottom: 8px;
+    }
+
+    .guide-desc {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: #3b2d1c;
+    }
+
+    .guide-examples {
+      background: rgba(138, 109, 77, 0.05);
+      border-left: 3px solid var(--color-gold);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: #61503c;
+    }
+
+    /* Game Over Specific */
+    .gameover-summary {
+      width: 100%;
+      background: rgba(138, 109, 77, 0.03);
+      border: 1px solid rgba(138, 109, 77, 0.2);
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .summary-title {
+      font-family: var(--font-calligraphy);
+      font-size: 1.3rem;
+      color: var(--color-wood-dark);
+      text-align: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(138, 109, 77, 0.2);
+      padding-bottom: 5px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    .stat-row.total-score {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--color-red);
+      border-top: 1.5px solid var(--color-red);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .incorrect-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+      border-top: 1px dashed rgba(138, 109, 77, 0.2);
+      padding-top: 10px;
+    }
+
+    .incorrect-item {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .analysis-advice {
+      background: rgba(168, 46, 46, 0.04);
+      border: 1px solid rgba(168, 46, 46, 0.15);
+      border-radius: 4px;
+      padding: 12px;
+      font-size: 0.9rem;
+      color: #5a2e2e;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      width: 100%;
+      text-align: justify;
+    }
+
+    /* ===== Rank Seal / 評比印章 ===== */
+    .rank-seal-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 18px;
+      width: 100%;
+    }
+
+    .rank-seal {
+      width: 120px;
+      height: 120px;
+      border: 4px solid var(--color-red);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: var(--font-calligraphy);
+      color: var(--color-red);
+      background: rgba(168, 46, 46, 0.06);
+      box-shadow: 0 0 0 3px rgba(168, 46, 46, 0.15), 0 0 18px rgba(168, 46, 46, 0.1), inset 0 0 20px rgba(168, 46, 46, 0.06);
+      position: relative;
+      transform: rotate(-5deg);
+      opacity: 0;
+    }
+
+    .rank-seal.animate {
+      animation: seal-stamp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+                 seal-glow 2s ease-in-out 1s infinite;
+    }
+
+    @keyframes seal-stamp {
+      0% {
+        transform: rotate(-5deg) scale(3);
+        opacity: 0;
+        filter: blur(4px);
+      }
+
+      40% {
+        transform: rotate(-5deg) scale(0.85);
+        opacity: 1;
+        filter: blur(0px);
+      }
+
+      55% {
+        transform: rotate(-3deg) scale(1.12);
+        opacity: 1;
+      }
+
+      70% {
+        transform: rotate(-6deg) scale(0.97);
+        opacity: 1;
+      }
+
+      85% {
+        transform: rotate(-4deg) scale(1.03);
+        opacity: 1;
+      }
+
+      100% {
+        transform: rotate(-5deg) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes seal-glow {
+      0%, 100% {
+        box-shadow: 0 0 0 3px rgba(168, 46, 46, 0.15), 0 0 18px rgba(168, 46, 46, 0.1), inset 0 0 20px rgba(168, 46, 46, 0.06);
+        border-color: var(--color-red);
+      }
+
+      50% {
+        box-shadow: 0 0 0 5px rgba(168, 46, 46, 0.25), 0 0 30px rgba(168, 46, 46, 0.3), 0 0 60px rgba(168, 46, 46, 0.15), inset 0 0 25px rgba(168, 46, 46, 0.12);
+        border-color: #c04040;
+      }
+    }
+
+    .rank-seal::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border: 2px dashed rgba(168, 46, 46, 0.3);
+      border-radius: 50%;
+    }
+
+    .rank-seal-label {
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      border-bottom: 1.5px solid var(--color-red);
+      padding-bottom: 3px;
+      margin-bottom: 4px;
+    }
+
+    .rank-seal-rank {
+      font-size: 1.6rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      line-height: 1.2;
+    }
+
+    .rank-seal-desc {
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      color: #4a3424;
+      margin-top: 10px;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    /* ===== Evaluation Feedback / 學習評語 ===== */
+    .evaluation-section {
+      width: 100%;
+      margin-bottom: 18px;
+    }
+
+    .evaluation-header {
+      font-family: var(--font-calligraphy);
+      font-size: 1.15rem;
+      color: var(--color-wood-dark);
+      text-align: center;
+      margin-bottom: 10px;
+      position: relative;
+      padding-bottom: 8px;
+    }
+
+    .evaluation-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 15%;
+      width: 70%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(138, 109, 77, 0.4), transparent);
+    }
+
+    .evaluation-body {
+      background: linear-gradient(135deg, rgba(168, 46, 46, 0.03) 0%, rgba(194, 157, 91, 0.05) 100%);
+      border: 1px solid rgba(138, 109, 77, 0.2);
+      border-left: 3px solid var(--color-red);
+      border-radius: 0 4px 4px 0;
+      padding: 14px 16px;
+      font-size: 0.88rem;
+      color: #3b2d1c;
+      line-height: 1.75;
+      text-align: justify;
+    }
+
+    .evaluation-body strong {
+      color: var(--color-red);
+    }
+
+    .learning-tip {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(194, 157, 91, 0.08);
+      border: 1px dashed var(--color-gold);
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #5c4530;
+      line-height: 1.7;
+    }
+
+    .learning-tip::before {
+      content: '📜 ';
+    }
+
+    /* Ink splash animation overlay */
+    .ink-splash {
+      position: absolute;
+      pointer-events: none;
+      width: 80px;
+      height: 80px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      transform: translate(-50%, -50%) scale(0);
+      z-index: 20;
+      animation: splash-fade 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+
+    @keyframes splash-fade {
+      0% {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 1;
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.95;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    /* Floating score animation text */
+    .score-float {
+      position: absolute;
+      pointer-events: none;
+      font-family: var(--font-calligraphy);
+      font-size: 1.5rem;
+      color: var(--color-red);
+      font-weight: bold;
+      text-shadow: 1px 1px 1px #fff;
+      transform: translate(-50%, -50%);
+      z-index: 30;
+      animation: score-float-up 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes score-float-up {
+      0% {
+        transform: translate(-50%, -50%) translateY(0) scale(0.5);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) translateY(-15px) scale(1.2);
+      }
+
+      100% {
+        transform: translate(-50%, -50%) translateY(-50px) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* Red flash effect on taking damage */
+    .damage-flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(168, 46, 46, 0.15);
+      z-index: 99;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s ease;
+    }
+
+    .damage-flash.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body><a href="./index.html" class="back-to-map-btn" style="position: fixed; top: 12px; left: 12px; z-index: 9999; padding: 6px 12px; background: rgba(58, 45, 30, 0.9); color: #f4efe6; border: 1.5px solid #c29d5b; border-radius: 4px; text-decoration: none; font-size: 13px; font-family: var(--font-body); font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.2s;" onmouseover="this.style.background='#c29d5b'; this.style.color='#1a1a1a';" onmouseout="this.style.background='rgba(58, 45, 30, 0.9)'; this.style.color='#f4efe6';">← 回到大地圖</a>
+
+  <!-- Background traditional brush overlay decorations -->
+  <div class="scroll-container">
+    <div class="scroll-roller-top"></div>
+
+    <!-- Game Header Status Bar -->
+    <header class="game-header">
+      <div class="wave-indicator">第 <span id="wave-num">一</span> 波</div>
+      <div class="stamp-container">
+        <div class="red-stamp" id="score-stamp">
+          <div class="stamp-title">得分</div>
+          <div class="stamp-value" id="score-val">0000</div>
+        </div>
+      </div>
+      <div class="lives-container" id="lives-box">
+        <!-- Generates 5 ink droplets dynamically -->
+      </div>
+    </header>
+
+    <!-- Target Category Calligraphy Banner -->
+    <section class="target-banner">
+      <div class="target-label">擊落符合以下造字法之漢字</div>
+      <div class="target-word" id="target-cat-name">請點擊開始</div>
+    </section>
+
+    <!-- Main Game Playfield -->
+    <main class="playfield" id="play-area">
+      <div class="damage-flash" id="damage-flash"></div>
+      <!-- Falling plaques will be dynamically inserted here -->
+    </main>
+
+    <!-- Bottom Control Bar -->
+    <footer class="game-footer">
+      <button class="btn-ancient btn-secondary" id="btn-guide-open">六書學習指南</button>
+      <div>
+        <button class="btn-ancient" id="btn-pause">暫停</button>
+      </div>
+      <button class="btn-mute" id="btn-sound-toggle" title="聲音切換">
+        <!-- Sound on icon -->
+        <svg id="svg-sound-on" viewBox="0 0 24 24">
+          <path
+            d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.3 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
+        </svg>
+        <!-- Sound off icon (hidden by default) -->
+        <svg id="svg-sound-off" viewBox="0 0 24 24" style="display: none;">
+          <path
+            d="M12,4L7,9H3V15H7L12,20V4M16.5,12C16.5,10.23 15.5,8.71 14,7.97V11L16.43,13.43C16.47,12.96 16.5,12.48 16.5,12M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,12.9 18.84,13.77 18.55,14.58L20.07,16.1C20.66,14.86 21,13.47 21,12C21,7.72 18,4.14 14,3.23M2.27,3L1,4.27L7.73,11H3V17H7L12,22V15.27L17,20.27L18.27,19L12,12.73L2.27,3Z" />
+        </svg>
+      </button>
+    </footer>
+
+    <div class="scroll-roller-bottom"></div>
+
+    <!-- START SCREEN OVERLAY -->
+    <div class="screen-overlay active" id="screen-start">
+      <div class="scroll-content">
+        <h1 class="screen-title">六書辨析大作戰</h1>
+        <p class="screen-text">
+          六書是古人分析漢字造字法則與字形結構的智慧結晶。本遊戲著重檢驗四種造字法：<strong>象形、指事、會意、形聲</strong>。<br><br>
+          在每波戰役中，請根據上方條幅指示，在木牌落到底部前，精準點擊擊落代表該造字法之漢字！
+        </p>
+
+        <div class="rules-card">
+          <ul>
+            <li><strong>擊落正確漢字</strong>：依高度計分，木牌位置越高，得分越豐厚。</li>
+            <li><strong>擊落錯誤漢字/錯失目標</strong>：扣減水墨生命值。</li>
+            <li><strong>生死關頭</strong>：共有五點水墨生命值，歸零即戰局終止。</li>
+            <li><strong>漸進挑戰</strong>：速度將隨波數推進逐步上升，考驗你的眼明手快！</li>
+          </ul>
+        </div>
+
+        <div class="menu-buttons">
+          <button class="btn-ancient" id="btn-start">開始作戰</button>
+          <button class="btn-ancient btn-secondary" id="btn-guide-start">六書學習指南</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GUIDE SCREEN OVERLAY -->
+    <div class="screen-overlay" id="screen-guide">
+      <div class="scroll-content">
+        <h2 class="screen-title">六書判定學習指南</h2>
+
+        <div class="guide-book">
+          <div class="guide-section">
+            <h3 class="guide-title">一、象形字 (Pictograms)</h3>
+            <p class="guide-desc">描摹實物的外形輪廓而組成的字。多為自然物或具體器物名稱。</p>
+            <div class="guide-examples"><strong>題庫例字：</strong>心、門、牛、羊、人、口、鬲、木、目、山、日、月、刀、雨、鳥</div>
+          </div>
+
+          <div class="guide-section">
+            <h3 class="guide-title">二、指事字 (Ideograms)</h3>
+            <p class="guide-desc">用象徵性符號來表示抽象概念或在象形字上加上指事性符號（標記）。</p>
+            <div class="guide-examples"><strong>題庫例字：</strong>上、下、一、四、六、七、刃（刀口加點）、甘（口中含物）、牟、末（樹梢）、內、寸、旦、未、小</div>
+          </div>
+
+          <div class="guide-section">
+            <h3 class="guide-title">三、會意字 (Logical Aggregates)</h3>
+            <p class="guide-desc">會合兩個或兩個以上的字（意符），將其意義結合以表示一個新字義。</p>
+            <div class="guide-examples"><strong>題庫例字：</strong>林（雙木）、武（止戈）、信（人言）、森（三木）、祭、男（田力）、休（人倚木）、品、伐、班、相、美、牧、尖、明
+            </div>
+          </div>
+
+          <div class="guide-section">
+            <h3 class="guide-title">四、形聲字 (Phonetic Compounds)</h3>
+            <p class="guide-desc">由「形旁（表意符號）」與「聲旁（表音符號）」組合而成的字，佔漢字中絕大多數。</p>
+            <div class="guide-examples"><strong>題庫例字：</strong>清（水旁青聲）、江、河、悶（門旁心聲）、板、橋、智、消、閱、網、格、注、鷺、頭、校</div>
+          </div>
+        </div>
+
+        <button class="btn-ancient btn-secondary" id="btn-guide-close"
+          style="width: 100%; max-width: 150px;">返回</button>
+      </div>
+    </div>
+
+    <!-- PAUSE SCREEN OVERLAY -->
+    <div class="screen-overlay" id="screen-pause">
+      <div class="scroll-content" style="max-width: 280px; padding: 25px 20px;">
+        <h2 class="screen-title" style="font-size: 1.8rem;">戰局暫停</h2>
+        <div class="menu-buttons" style="margin-top: 10px;">
+          <button class="btn-ancient" id="btn-resume">繼續作戰</button>
+          <button class="btn-ancient btn-secondary" id="btn-restart-from-pause">重整旗鼓</button>
+          <button class="btn-ancient btn-secondary" id="btn-menu-from-pause">返回主頁</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER SCREEN OVERLAY -->
+    <div class="screen-overlay" id="screen-gameover">
+      <div class="scroll-content">
+        <h2 class="screen-title">戰局終結</h2>
+
+        <!-- 評比印章 Rank Seal (靠靜態HTML確保顯示) -->
+        <div class="rank-seal-container">
+          <div class="rank-seal" id="rank-seal-circle">
+            <div class="rank-seal-label">六書技藝</div>
+            <div class="rank-seal-rank" id="rank-seal-text">不入流</div>
+          </div>
+          <div class="rank-seal-desc" id="rank-seal-desc">評語載入中...</div>
+        </div>
+
+        <div class="gameover-summary">
+          <h3 class="summary-title">作戰成果</h3>
+          <div class="stat-row">
+            <span>歷經波數：</span>
+            <span id="summary-waves" style="font-weight: bold;">0 波</span>
+          </div>
+          <div class="stat-row">
+            <span>擊落敵簡：</span>
+            <span id="summary-hits" style="font-weight: bold; color: #4a6d4d;">0 個</span>
+          </div>
+          <div class="stat-row total-score">
+            <span>最終得分：</span>
+            <span id="summary-score">0000</span>
+          </div>
+
+          <div class="incorrect-grid" id="incorrect-stats-box">
+            <!-- Dynamic stats per category -->
+          </div>
+        </div>
+
+        <!-- 學習評語 Evaluation -->
+        <div class="evaluation-section">
+          <div class="evaluation-header">學習評語</div>
+          <div class="evaluation-body" id="evaluation-body-text">評語載入中...</div>
+          <div class="learning-tip" id="learning-tip-text" style="display: none;"></div>
+        </div>
+
+        <div class="menu-buttons" style="max-width: 180px;">
+          <button class="btn-ancient" id="btn-restart">重整旗鼓</button>
+          <button class="btn-ancient btn-secondary" id="btn-menu">返回主頁</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- 題庫來源與 fallback 資料庫 ---
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS5Kn1d9iiLW-8Ip4BXYAR5Yrd3BsqbvBLGHJtmk8Qb7ifY77VymKyMYYdnmz0IrUY025aoPc2-qF6K/pub?output=csv';
+
+    const FALLBACK_DATA = [
+      { no: 1, 象形: '心', 指事: '上', 會意: '林', 形聲: '清' },
+      { no: 2, 象形: '門', 指事: '下', 會意: '武', 形聲: '江' },
+      { no: 3, 象形: '牛', 指事: '一', 會意: '信', 形聲: '河' },
+      { no: 4, 象形: '羊', 指事: '四', 會意: '森', 形聲: '悶' },
+      { no: 5, 象形: '人', 指事: '六', 會意: '祭', 形聲: '板' },
+      { no: 6, 象形: '口', 指事: '七', 會意: '男', 形聲: '橋' },
+      { no: 7, 象形: '鬲', 指事: '刃', 會意: '休', 形聲: '智' },
+      { no: 8, 象形: '木', 指事: '甘', 會意: '品', 形聲: '消' },
+      { no: 9, 象形: '目', 指事: '牟', 會意: '伐', 形聲: '閱' },
+      { no: 10, 象形: '山', 指事: '末', 會意: '班', 形聲: '網' },
+      { no: 11, 象形: '日', 指事: '內', 會意: '相', 形聲: '格' },
+      { no: 12, 象形: '月', 指事: '寸', 會意: '美', 形聲: '注' },
+      { no: 13, 象形: '刀', 指事: '旦', 會意: '牧', 形聲: '鷺' },
+      { no: 14, 象形: '雨', 指事: '未', 會意: '尖', 形聲: '頭' },
+      { no: 15, 象形: '鳥', 指事: '小', 會意: '明', 形聲: '校' }
+    ];
+
+    const CHINESE_NUMBERS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十'];
+
+    function getChineseNumber(num) {
+      if (num <= 20) return CHINESE_NUMBERS[num];
+      return num.toString(); // Fallback for very high waves
+    }
+
+    // --- 音效控制器 (Web Audio API) ---
+    const audio = {
+      ctx: null,
+      enabled: true,
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playPluck() {
+        if (!this.enabled) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle'; // Guqin/Zither resonant pluck
+        // Traditional pentatonic notes in C major (C5, D5, E5, G5, A5)
+        const notes = [523.25, 587.33, 659.25, 783.99, 880.00];
+        const freq = notes[Math.floor(Math.random() * notes.length)];
+
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.008, t + 0.15);
+
+        gain.gain.setValueAtTime(0.35, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.45);
+      },
+      playSuccess() {
+        if (!this.enabled) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        // Pentatonic ascending chime: C5, E5, G5, C6
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.07);
+          gain.gain.setValueAtTime(0.18, t + idx * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.07 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + idx * 0.07);
+          osc.stop(t + idx * 0.07 + 0.25);
+        });
+      },
+      playDamage() {
+        if (!this.enabled) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        // Dull wood gong / thud sound
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, t);
+        osc.frequency.linearRampToValueAtTime(50, t + 0.25);
+
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(180, t);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(t);
+        osc.stop(t + 0.25);
+      },
+      playStart() {
+        if (!this.enabled) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        // Chinese classical motif (C4, D4, G4, A4, C5)
+        const melody = [261.63, 293.66, 392.00, 440.00, 523.25];
+        melody.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.14);
+          gain.gain.setValueAtTime(0.15, t + idx * 0.14);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.14 + 0.4);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + idx * 0.14);
+          osc.stop(t + idx * 0.14 + 0.4);
+        });
+      },
+      playGameOver() {
+        if (!this.enabled) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        // Descending sad melody
+        const melody = [440.00, 392.00, 329.63, 293.66, 220.00];
+        melody.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.22);
+          gain.gain.setValueAtTime(0.18, t + idx * 0.22);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.22 + 0.5);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + idx * 0.22);
+          osc.stop(t + idx * 0.22 + 0.5);
+        });
+      }
+    };
+
+    // --- 遊戲核心變數與狀態管理 ---
+    let db = [];
+    let gameState = {
+      score: 0,
+      lives: 5,
+      wave: 1,
+      baseSpeed: 1.0, // Speed pixels per frame
+      speedMultiplier: 0.05, // Speed increment per wave
+      isActive: false,
+      isPaused: false,
+      correctHitsCount: 0,
+      currentTiles: [],
+      targetCategory: '', // 象形, 指事, 會意, 形聲
+      targetCategoryFullName: '', // 象形字, 指事字, 會意字, 形聲字
+      incorrectStats: {
+        '象形字': 0,
+        '指事字': 0,
+        '會意字': 0,
+        '形聲字': 0
+      }
+    };
+
+    const categories = ['象形', '指事', '會意', '形聲'];
+    const categoryFullNames = {
+      '象形': '象形字',
+      '指事': '指事字',
+      '會意': '會意字',
+      '形聲': '形聲字'
+    };
+
+    // SVG Ink droplet definition to construct lives dynamically
+    const inkDropletSVG = `
+      <svg class="ink-droplet" viewBox="0 0 24 24">
+        <path d="M12,2.69C12,2.69 19,9.45 19,14A7,7 0 0,1 12,21A7,7 0 0,1 5,14C5,9.45 12,2.69 12,2.69Z" />
+      </svg>`;
+
+    // --- DOM Elements ---
+    const playArea = document.getElementById('play-area');
+    const waveIndicator = document.getElementById('wave-num');
+    const scoreVal = document.getElementById('score-val');
+    const scoreStamp = document.getElementById('score-stamp');
+    const livesBox = document.getElementById('lives-box');
+    const targetCatName = document.getElementById('target-cat-name');
+    const damageFlash = document.getElementById('damage-flash');
+
+    const screenStart = document.getElementById('screen-start');
+    const screenGuide = document.getElementById('screen-guide');
+    const screenPause = document.getElementById('screen-pause');
+    const screenGameover = document.getElementById('screen-gameover');
+
+    const btnStart = document.getElementById('btn-start');
+    const btnGuideStart = document.getElementById('btn-guide-start');
+    const btnGuideOpen = document.getElementById('btn-guide-open');
+    const btnGuideClose = document.getElementById('btn-guide-close');
+    const btnPause = document.getElementById('btn-pause');
+    const btnResume = document.getElementById('btn-resume');
+    const btnRestartFromPause = document.getElementById('btn-restart-from-pause');
+    const btnMenuFromPause = document.getElementById('btn-menu-from-pause');
+    const btnRestart = document.getElementById('btn-restart');
+    const btnMenu = document.getElementById('btn-menu');
+    const btnSoundToggle = document.getElementById('btn-sound-toggle');
+    const svgSoundOn = document.getElementById('svg-sound-on');
+    const svgSoundOff = document.getElementById('svg-sound-off');
+
+    const summaryWaves = document.getElementById('summary-waves');
+    const summaryHits = document.getElementById('summary-hits');
+    const summaryScore = document.getElementById('summary-score');
+    const incorrectStatsBox = document.getElementById('incorrect-stats-box');
+
+    // --- CSV 解析與資料獲取 ---
+    function parseCSV(csvText) {
+      const lines = csvText.trim().split('\n');
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const cols = line.split(',');
+        if (cols.length >= 5) {
+          data.push({
+            no: parseInt(cols[0].trim()) || i,
+            '象形': cols[1].trim(),
+            '指事': cols[2].trim(),
+            '會意': cols[3].trim(),
+            '形聲': cols[4].trim()
+          });
+        }
+      }
+      return data;
+    }
+
+    async function initDatabase() {
+      try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) throw new Error('無法載入 Google 試算表');
+        const text = await response.text();
+        db = parseCSV(text);
+        if (db.length === 0) throw new Error('解析 CSV 後資料為空');
+        console.log('自 Google 試算表載入題庫成功，共', db.length, '筆數據。');
+      } catch (e) {
+        console.warn('Google 試算表題庫載入失敗或受 CORS 限制，改用內建題庫備用方案。', e);
+        db = [...FALLBACK_DATA];
+      }
+    }
+
+    // --- 遊戲邏輯與控制 ---
+
+    function initGame() {
+      gameState.score = 0;
+      gameState.lives = 5;
+      gameState.wave = 1;
+      gameState.baseSpeed = 1.0;
+      gameState.isActive = false;
+      gameState.isPaused = false;
+      gameState.correctHitsCount = 0;
+      gameState.currentTiles = [];
+      gameState.targetCategory = '';
+      gameState.targetCategoryFullName = '';
+      gameState.incorrectStats = {
+        '象形字': 0,
+        '指事字': 0,
+        '會意字': 0,
+        '形聲字': 0
+      };
+
+      updateLivesUI();
+      updateScoreUI(false);
+      clearPlayfield();
+    }
+
+    function startGame() {
+      initGame();
+      gameState.isActive = true;
+      audio.playStart();
+      closeAllScreens();
+      spawnWave();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function togglePause() {
+      if (!gameState.isActive) return;
+      if (gameState.isPaused) {
+        gameState.isPaused = false;
+        btnPause.innerText = '暫停';
+        screenPause.classList.remove('active');
+        requestAnimationFrame(gameLoop);
+      } else {
+        gameState.isPaused = true;
+        btnPause.innerText = '繼續';
+        screenPause.classList.add('active');
+      }
+    }
+
+    function gameOver() {
+      try {
+        gameState.isActive = false;
+        audio.playGameOver();
+
+        // Update GameOver UI
+        document.getElementById('summary-waves').innerText = gameState.wave + ' 波';
+        document.getElementById('summary-hits').innerText = gameState.correctHitsCount + ' 個';
+        document.getElementById('summary-score').innerText = String(gameState.score).padStart(4, '0');
+
+        // Populate category breakdown
+        var statsBox = document.getElementById('incorrect-stats-box');
+        statsBox.innerHTML = '';
+        var worstCategory = '';
+        var maxErrors = -1;
+        var cats = Object.keys(gameState.incorrectStats);
+        for (var i = 0; i < cats.length; i++) {
+          var cat = cats[i];
+          var count = gameState.incorrectStats[cat];
+          var item = document.createElement('div');
+          item.className = 'incorrect-item';
+          var colorStyle = count > 0 ? 'color:var(--color-red);font-weight:bold;' : 'color:green;font-weight:bold;';
+          item.innerHTML = '<strong>' + cat + '</strong> 辨析錯誤：<span style="' + colorStyle + '">' + count + '</span> 次';
+          statsBox.appendChild(item);
+          if (count > maxErrors) {
+            maxErrors = count;
+            worstCategory = cat;
+          }
+        }
+
+        // Calculate Rank
+        var rank = '';
+        var rankDesc = '';
+        var score = gameState.score;
+        if (score <= 500) {
+          rank = '不入流';
+          rankDesc = '你還是小菜菜，再多練練吧!';
+        } else if (score <= 1000) {
+          rank = '三流高手';
+          rankDesc = '剛入門的新手，你的進步空間還很大!';
+        } else if (score <= 1500) {
+          rank = '二流高手';
+          rankDesc = '小有實力，可惜還不到火侯!';
+        } else if (score <= 2500) {
+          rank = '一流高手';
+          rankDesc = '頗有實力，距離出師只剩下一步了!';
+        } else {
+          rank = '絕世高手';
+          rankDesc = '實在太厲害了~容我稱你一聲大師!';
+        }
+        if (rank !== '不入流') {
+          localStorage.setItem('cert_six_writings', '文字之印');
+        } else {
+          localStorage.removeItem('cert_six_writings');
+        }
+        localStorage.setItem('score_six_writings', score);
+
+        // Update Rank Seal (更新內容並觸發動畫)
+        var sealCircle = document.getElementById('rank-seal-circle');
+        sealCircle.classList.remove('animate');
+        void sealCircle.offsetWidth; // force reflow to restart animation
+        document.getElementById('rank-seal-text').textContent = rank;
+        document.getElementById('rank-seal-desc').textContent = rankDesc;
+        setTimeout(function() { sealCircle.classList.add('animate'); }, 300);
+
+        // Analyze performance & give custom learning feedback
+        var feedbackMain = '';
+        var tipText = '';
+        if (gameState.correctHitsCount === 0) {
+          feedbackMain = '戰局中未擊落任何正確漢字。建議你先點擊下方「六書學習指南」複習各造字法的要領，重整旗鼓後再度挑戰！';
+        } else if (maxErrors === 0) {
+          feedbackMain = '太厲害了！你在作戰中展現出過人的六書素養，字字洞悉，堪稱「六書大宗師」！請繼續保持對漢字美學的熱忱。';
+        } else {
+          feedbackMain = '此次戰局中，你在「' + worstCategory + '」的誤判率最高。';
+          if (worstCategory === '象形字') {
+            tipText = '「象形字」是描摹物體外形輪廓的造字法（如山、目、牛）。如果分不清，可以試著將字體聯想成對應事物的原始簡筆畫，通常皆為自然存在的實體喔！';
+          } else if (worstCategory === '指事字') {
+            tipText = '「指事字」多用以表示抽象概念，通常是在「象形字」上加上象徵性的符號來標示重點（如刃在刀口加一點、本在木根加一橫）。請注意這些微小標記！';
+          } else if (worstCategory === '會意字') {
+            tipText = '「會意字」是將兩個或多個表意的部件合併，拼湊出一個全新的字義（如「林」由雙木合意、「休」是人靠在樹旁）。注意它沒有表音的聲符，純粹會意！';
+          } else if (worstCategory === '形聲字') {
+            tipText = '「形聲字」是由表示意義的「形旁」和表示讀音的「聲旁」結合而成（如「清」由水表意、青表音）。形聲字在漢字中佔絕大多數，拆開字形找出讀音關聯是辨析關鍵！';
+          }
+        }
+
+        // Update evaluation text
+        document.getElementById('evaluation-body-text').innerHTML = feedbackMain;
+        var tipEl = document.getElementById('learning-tip-text');
+        if (tipText) {
+          tipEl.textContent = tipText;
+          tipEl.style.display = 'block';
+        } else {
+          tipEl.style.display = 'none';
+        }
+
+        screenGameover.classList.add('active');
+        console.log('gameOver completed: rank=' + rank + ', score=' + score);
+      } catch (err) {
+        console.error('gameOver error:', err);
+        // Fallback: still show the game over screen
+        screenGameover.classList.add('active');
+      }
+    }
+
+    function clearPlayfield() {
+      // Remove all elements with class plaque
+      const plaques = playArea.querySelectorAll('.plaque');
+      plaques.forEach(p => p.remove());
+      gameState.currentTiles = [];
+    }
+
+    function updateScoreUI(animate = true) {
+      scoreVal.innerText = String(gameState.score).padStart(4, '0');
+      if (animate) {
+        scoreStamp.classList.add('bounce');
+        setTimeout(() => scoreStamp.classList.remove('bounce'), 300);
+      }
+    }
+
+    function updateLivesUI() {
+      livesBox.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        livesBox.insertAdjacentHTML('beforeend', inkDropletSVG);
+      }
+      const droplets = livesBox.querySelectorAll('.ink-droplet');
+      for (let i = 0; i < 5; i++) {
+        if (i >= gameState.lives) {
+          droplets[i].classList.add('lost');
+        }
+      }
+    }
+
+    function takeDamage() {
+      gameState.lives--;
+      updateLivesUI();
+
+      // Trigger damage flash
+      damageFlash.classList.add('active');
+      setTimeout(() => damageFlash.classList.remove('active'), 150);
+
+      audio.playDamage();
+
+      if (gameState.lives <= 0) {
+        gameOver();
+      }
+    }
+
+    // --- Wave Generaton & Positioning ---
+
+    function spawnWave() {
+      clearPlayfield();
+
+      // 1. Choose Target Category (象形, 指事, 會意, 形聲)
+      const targetIndex = Math.floor(Math.random() * categories.length);
+      gameState.targetCategory = categories[targetIndex];
+      gameState.targetCategoryFullName = categoryFullNames[gameState.targetCategory];
+
+      // Update Target display text
+      targetCatName.innerText = gameState.targetCategoryFullName;
+      waveIndicator.innerText = getChineseNumber(gameState.wave);
+
+      // 2. Select words from database
+      // Grab 1 random row from database
+      const randomRow = db[Math.floor(Math.random() * db.length)];
+
+      // We need to create 4 tiles representing each of the categories:
+      // 象形, 指事, 會意, 形聲
+      // One correct word (from targetCategory)
+      // Three incorrect words (from the other categories)
+      const choices = categories.map(cat => {
+        return {
+          word: randomRow[cat] || FALLBACK_DATA[0][cat],
+          category: cat,
+          categoryFullName: categoryFullNames[cat],
+          isTarget: cat === gameState.targetCategory
+        };
+      });
+
+      // 3. Shuffle choices to randomize columns (Lanes: 0, 1, 2, 3)
+      for (let i = choices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [choices[i], choices[j]] = [choices[j], choices[i]];
+      }
+
+      // 4. Create and render DOM elements
+      const laneWidth = playArea.clientWidth / 4;
+      const plaqueHeight = 105;
+
+      choices.forEach((choice, index) => {
+        const xPos = laneWidth * index + laneWidth / 2;
+
+        const plaque = document.createElement('div');
+        plaque.className = 'plaque';
+        // Add random slight rotational offset to simulate hand-hung wood boards
+        const rot = (Math.random() * 8 - 4).toFixed(1);
+        plaque.style.transform = `translateX(-50%) rotate(${rot}deg)`;
+        plaque.style.left = `${xPos}px`;
+        plaque.style.top = `-${plaqueHeight}px`; // Start just above play area
+
+        plaque.innerHTML = `<span class="plaque-content">${choice.word}</span>`;
+
+        // Add event listener for click or touch
+        plaque.addEventListener('pointerdown', (e) => onTileClicked(e, tileObj));
+
+        playArea.appendChild(plaque);
+
+        const tileObj = {
+          element: plaque,
+          y: -plaqueHeight,
+          lane: index,
+          word: choice.word,
+          category: choice.category,
+          categoryFullName: choice.categoryFullName,
+          isTarget: choice.isTarget,
+          rotation: parseFloat(rot),
+          height: plaqueHeight
+        };
+
+        gameState.currentTiles.push(tileObj);
+      });
+    }
+
+    // --- Interaction Effects ---
+
+    function createInkSplash(x, y, isRed = false) {
+      const splash = document.createElement('div');
+      splash.className = 'ink-splash';
+
+      // Use different SVG shapes for black and red ink
+      let svgContent = '';
+      if (isRed) {
+        svgContent = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 15 C42 28 15 32 10 48 C5 63 30 73 50 83 C70 73 95 63 90 48 C85 32 58 28 50 15 Z" fill="%238a2121" opacity="0.85"/><circle cx="25" cy="25" r="7" fill="%238a2121" opacity="0.85"/><circle cx="75" cy="28" r="5" fill="%238a2121" opacity="0.85"/><circle cx="50" cy="76" r="9" fill="%238a2121" opacity="0.85"/></svg>')`;
+      } else {
+        svgContent = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 20 C45 35 25 35 15 50 C5 65 25 80 50 80 C75 80 95 65 85 50 C75 35 55 35 50 20 Z" fill="black" opacity="0.9"/><circle cx="28" cy="28" r="6" fill="black" opacity="0.9"/><circle cx="72" cy="33" r="5" fill="black" opacity="0.9"/><circle cx="46" cy="74" r="7" fill="black" opacity="0.9"/><circle cx="22" cy="62" r="4" fill="black" opacity="0.9"/></svg>')`;
+      }
+
+      splash.style.backgroundImage = svgContent;
+      splash.style.left = `${x}px`;
+      splash.style.top = `${y}px`;
+
+      playArea.appendChild(splash);
+      setTimeout(() => splash.remove(), 500);
+    }
+
+    function createFloatingText(x, y, text) {
+      const floatText = document.createElement('div');
+      floatText.className = 'score-float';
+      floatText.innerText = text;
+      floatText.style.left = `${x}px`;
+      floatText.style.top = `${y}px`;
+
+      playArea.appendChild(floatText);
+      setTimeout(() => floatText.remove(), 800);
+    }
+
+    function onTileClicked(e, tile) {
+      if (!gameState.isActive || gameState.isPaused) return;
+
+      const rect = playArea.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      if (tile.isTarget) {
+        // Correct Hit!
+        audio.playPluck();
+
+        // Calculate points based on vertical height ratio (higher up = more points)
+        const playHeight = playArea.clientHeight;
+        const remainingDist = playHeight - tile.y - tile.height;
+        const heightRatio = Math.max(0, Math.min(1, remainingDist / playHeight));
+
+        // Base score: 50, Height bonus up to 50
+        const points = 50 + Math.round(heightRatio * 50);
+        gameState.score += points;
+        gameState.correctHitsCount++;
+
+        createInkSplash(clickX, clickY, false);
+        createFloatingText(clickX, clickY, `+${points}`);
+        updateScoreUI();
+
+        // Speed increases with waves and hits
+        gameState.wave++;
+
+        // Move to next wave
+        setTimeout(() => {
+          if (gameState.isActive) spawnWave();
+        }, 50);
+
+      } else {
+        // Incorrect Click!
+        tile.element.classList.add('shake');
+        setTimeout(() => tile.element.classList.remove('shake'), 400);
+
+        createInkSplash(clickX, clickY, true);
+        createFloatingText(clickX, clickY, '錯');
+
+        // Increment mistake stats
+        gameState.incorrectStats[tile.categoryFullName]++;
+
+        takeDamage();
+      }
+    }
+
+    // --- Main Game Loop ---
+
+    function gameLoop(timestamp) {
+      if (!gameState.isActive || gameState.isPaused) return;
+
+      const playHeight = playArea.clientHeight;
+      // Speed scales up based on the current wave number
+      const currentSpeed = gameState.baseSpeed + (gameState.wave - 1) * gameState.speedMultiplier;
+
+      let correctTileEscaped = false;
+
+      // Update positions of falling tiles
+      for (let i = 0; i < gameState.currentTiles.length; i++) {
+        const tile = gameState.currentTiles[i];
+        tile.y += currentSpeed;
+        tile.element.style.top = `${tile.y}px`;
+
+        // Check if tile has fallen past the bottom of the playfield
+        if (tile.y >= playHeight) {
+          if (tile.isTarget) {
+            correctTileEscaped = true;
+          }
+        }
+      }
+
+      if (correctTileEscaped) {
+        // Correct tile reached the bottom, trigger penalty and reset wave
+        takeDamage();
+        if (gameState.isActive) {
+          gameState.wave++;
+          spawnWave();
+        }
+      }
+
+      if (gameState.isActive && !gameState.isPaused) {
+        requestAnimationFrame(gameLoop);
+      }
+    }
+
+    // --- Overlay Screens Screen Controllers ---
+
+    function closeAllScreens() {
+      screenStart.classList.remove('active');
+      screenGuide.classList.remove('active');
+      screenPause.classList.remove('active');
+      screenGameover.classList.remove('active');
+    }
+
+    // --- Event Listeners ---
+
+    btnStart.addEventListener('click', () => {
+      startGame();
+    });
+
+    btnGuideStart.addEventListener('click', () => {
+      screenGuide.classList.add('active');
+    });
+
+    btnGuideOpen.addEventListener('click', () => {
+      gameState.isPaused = true;
+      btnPause.innerText = '繼續';
+      screenGuide.classList.add('active');
+    });
+
+    btnGuideClose.addEventListener('click', () => {
+      screenGuide.classList.remove('active');
+    });
+
+    btnPause.addEventListener('click', () => {
+      togglePause();
+    });
+
+    btnResume.addEventListener('click', () => {
+      togglePause();
+    });
+
+    btnRestartFromPause.addEventListener('click', () => {
+      initGame();
+      startGame();
+    });
+
+    btnMenuFromPause.addEventListener('click', () => {
+      initGame();
+      closeAllScreens();
+      screenStart.classList.add('active');
+    });
+
+    btnRestart.addEventListener('click', () => {
+      initGame();
+      startGame();
+    });
+
+    btnMenu.addEventListener('click', () => {
+      initGame();
+      closeAllScreens();
+      screenStart.classList.add('active');
+    });
+
+    btnSoundToggle.addEventListener('click', () => {
+      audio.enabled = !audio.enabled;
+      if (audio.enabled) {
+        svgSoundOn.style.display = 'block';
+        svgSoundOff.style.display = 'none';
+        audio.init();
+      } else {
+        svgSoundOn.style.display = 'none';
+        svgSoundOff.style.display = 'block';
+      }
+    });
+
+    // Initialize the CSV loading and DB fallback on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initDatabase();
+      initGame();
+    });
+  </script>
+</body>
+
+</html>
